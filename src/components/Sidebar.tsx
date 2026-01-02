@@ -16,9 +16,9 @@ const Sidebar = () => {
     return (
         <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col">
             <div className="p-6">
-                <h1 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
+                <h1 className="text-lg font-bold text-blue-600 flex items-center gap-2">
                     <FileText className="w-8 h-8" />
-                    <span>社工輔助</span>
+                    <span>居督家電訪輔助系統</span>
                 </h1>
                 <p className="text-sm text-gray-500 mt-1">居服督導版</p>
             </div>

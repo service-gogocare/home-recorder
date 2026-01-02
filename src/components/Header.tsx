@@ -22,11 +22,11 @@ const Header = () => {
 
                 <div className="flex items-center gap-3 pl-6 border-l border-gray-100">
                     <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">陳督導</p>
-                        <p className="text-xs text-gray-500">北區服務中心</p>
+                        <p className="text-sm font-medium text-gray-900">李督導</p>
+                        <p className="text-xs text-gray-500">烏日區服務中心</p>
                     </div>
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                        陳
+                        李
                     </div>
                 </div>
             </div>
