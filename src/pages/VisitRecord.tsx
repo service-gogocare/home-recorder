@@ -6,20 +6,54 @@ const VisitRecord = () => {
     const [content, setContent] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState<null | { summary: string; assessment: string; plan: string }>(null);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+
+    const generateAnalysis = (text: string) => {
+        let summary = "本日訪視摘要：\n";
+        let assessment = "";
+        let plan = "";
+
+        const hasFallRisk = /跌倒|滑|不穩|摔|濕/.test(text);
+        const hasPain = /痛|酸|痠|不舒服|難受/.test(text);
+        const hasMedsIssue = /藥|吞|吃藥|副作用/.test(text);
+        const hasMoodIssue = /心情|哭|難過|生氣|煩|孤單/.test(text);
+
+        // Summary generation
+        if (hasFallRisk) summary += "- 環境或生理狀況顯示有跌倒風險。\n";
+        if (hasPain) summary += "- 案主主訴身體疼痛/不適。\n";
+        if (hasMedsIssue) summary += "- 用藥狀況需關注。\n";
+        if (hasMoodIssue) summary += "- 情緒較為低落或不穩定。\n";
+        if (summary === "本日訪視摘要：\n") summary += "案主精神狀況良好，意識清楚，生活作息規律。\n";
+
+        // Assessment generation
+        let assessCount = 1;
+        if (hasFallRisk) assessment += `${assessCount++}. 跌倒風險：環境濕滑或步態不穩，高跌倒風險。\n`;
+        if (hasPain) assessment += `${assessCount++}. 舒適度：疼痛指數待評估，影響活動意願。\n`;
+        if (hasMedsIssue) assessment += `${assessCount++}. 服藥順從性：可能因吞嚥困難或副作用自行停藥。\n`;
+        if (hasMoodIssue) assessment += `${assessCount++}. 心理狀態：需關注情緒支持系統與社交互動。\n`;
+        if (!assessment) assessment = "1. 整體評估：身心狀況維持穩定，無特殊異常。\n";
+
+        // Plan generation
+        let planCount = 1;
+        if (hasFallRisk) plan += `${planCount++}. 環境安全：建議安裝扶手、止滑墊，保持地面乾燥。\n`;
+        if (hasPain) plan += `${planCount++}. 疼痛緩解：建議熱敷/按摩，或協助就醫調整藥物。\n`;
+        if (hasMedsIssue) plan += `${planCount++}. 用藥指導：與醫師討論劑型調整(磨粉/藥水)，建立按時服藥習慣。\n`;
+        if (hasMoodIssue) plan += `${planCount++}. 心理支持：傾聽陪伴，鼓勵參與社區活動或轉介心理諮詢。\n`;
+        if (!plan) plan += "1. 持續追蹤：依照 care plan 執行常規訪視與照護。\n";
+
+        return { summary, assessment, plan };
+    };
 
     const handleAnalyze = () => {
         if (!content.trim()) return;
 
         setIsAnalyzing(true);
-        // Simulate AI delay
+        // Simulate AI delay and dynamic analysis
         setTimeout(() => {
-            setResult({
-                summary: "本日訪視案主林阿嬤，案主精神狀況良好，意識清楚。居家環境整潔，但浴室地板略顯濕滑。案主主訴最近膝蓋疼痛加劇，影響行走意願。服藥狀況穩定，但反應藥物顆粒較大難以吞嚥。",
-                assessment: "1. 跌倒風險：浴室環境濕滑加上案主膝蓋疼痛，跌倒風險增加。\n2. 身體功能：膝關節疼痛影響行動力，需關注其活動量是否下降。\n3. 服藥順從性：藥物吞嚥困難可能導致案主自行停藥，需進一步評估。",
-                plan: "1. 環境改善：建議家屬在浴室安裝扶手及防滑墊。\n2. 轉介服務：建議轉介物理治療師評估膝蓋狀況，或教導居家復健運動。\n3. 醫療諮詢：建議陪同就醫時與醫師討論是否可更換劑型或磨粉。\n4. 持續追蹤：下週訪視重點追蹤浴室改善情形及用藥狀況。"
-            });
+            const analysisResult = generateAnalysis(content);
+            setResult(analysisResult);
             setIsAnalyzing(false);
-        }, 2000);
+        }, 1500);
     };
 
     const handleMockFill = () => {
@@ -38,6 +72,21 @@ const VisitRecord = () => {
             }
         };
         reader.readAsText(file);
+    };
+
+    const handleAudioUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsTranscribing(true);
+        // Simulate audio upload and transcription delay
+        setTimeout(() => {
+            const mockTranscript = `[語音轉文字模擬 - 來源檔案: ${file.name}]\n訪視員：阿嬤，今天身體感覺怎麼樣？\n案主：哎唷，那個膝蓋還是很痛捏，尤其是早上下床的時候。\n訪視員：藥都有按時吃嗎？\n案主：有啦，但是那個藥丸好大顆，我吞不下去，都偷偷吐掉幾次...\n訪視員：這樣不行啦，我們下次去給醫生看，請他開小顆一點的或是藥粉好不好？\n案主：好啦好啦。啊對了，廁所地版有點滑，我昨天差點滑倒。\n`;
+            setContent(prev => prev ? prev + '\n\n' + mockTranscript : mockTranscript);
+            setIsTranscribing(false);
+            // Reset input value to allow selecting same file again
+            event.target.value = '';
+        }, 2000);
     };
 
     return (
@@ -66,10 +115,17 @@ const VisitRecord = () => {
                                 onChange={handleFileUpload}
                             />
                         </label>
-                        <button className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1">
-                            <Upload className="w-3 h-3" />
-                            匯入錄音
-                        </button>
+                        <label className={`px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1 cursor-pointer ${isTranscribing ? 'opacity-50 cursor-wait' : ''}`}>
+                            {isTranscribing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                            {isTranscribing ? '轉錄中...' : '匯入錄音'}
+                            <input
+                                type="file"
+                                accept="audio/*"
+                                className="hidden"
+                                onChange={handleAudioUpload}
+                                disabled={isTranscribing}
+                            />
+                        </label>
                     </div>
                 </div>
 
@@ -84,8 +140,8 @@ const VisitRecord = () => {
                         <button
                             onClick={() => setIsRecording(!isRecording)}
                             className={`absolute bottom-4 right-4 p-4 rounded-full shadow-lg transition-all ${isRecording
-                                    ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-                                    : 'bg-blue-600 hover:bg-blue-700'
+                                ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                                : 'bg-blue-600 hover:bg-blue-700'
                                 } text-white`}
                         >
                             <Mic className="w-6 h-6" />
