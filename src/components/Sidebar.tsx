@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, FileText, Calendar, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Calendar, Settings, LogOut, Briefcase } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { clsx } from 'clsx';
 
@@ -8,6 +8,7 @@ const Sidebar = () => {
     const navItems = [
         { icon: LayoutDashboard, label: '儀表板', path: '/' },
         { icon: Users, label: '個案管理', path: '/cases' },
+        { icon: Briefcase, label: '居服員管理', path: '/caregivers' },
         { icon: FileText, label: '訪視紀錄', path: '/visits' },
         { icon: Calendar, label: '工作排程', path: '/schedule' },
         { icon: Settings, label: '設定', path: '/settings' },
